@@ -51,7 +51,7 @@ st.dataframe(
   ]].head(10)
 )
 
-visit_mode_map = {
+visit_mode_map={
   0: "Business",
   1: "Couples",
   2: "Family",
