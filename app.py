@@ -39,7 +39,7 @@ user_data = df[df["UserId"] == user_id][features].iloc[0]
 
 prediction = clf.predict([user_data])[0]
 
-st.success(f"Predicted Visit Mode: {Visit_mode_map.get(prediction, prediction)}")
+st.success(f"Predicted Visit Mode: {visit_mode_map.get(prediction, prediction)}")
 
 st.subheader("User History")
 
