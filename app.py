@@ -35,7 +35,7 @@ features = [
   "user_avg_rating"
 ]
 
-user_data = df[df["UserId] == user_id][features].iloc[0]
+user_data = df[df["UserId"] == user_id][features].iloc[0]
 
 prediction = clf.predict([user_data])[0]
 
