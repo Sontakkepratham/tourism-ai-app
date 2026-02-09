@@ -83,13 +83,14 @@ mode_preferences = {
 "Solo": ["Historic", "Nature"]
 }
 
-preferrred_types = mode_preferences.get(predicted_label, [])
+preferred_types = mode_preferences.get(predicted_label, [])
+
 if preferred_types:
-candidate_recommendations["boost"] = candidate_recommendations[
-"AttractionType"
-].isin(preferred_types).astype(int)
+    candidate_recommendations["boost"] = candidate_recommendations[
+        "AttractionType"
+    ].isin(preferred_types).astype(int)
 else:
-candidate_recommendations["boost"]=0
+    candidate_recommendations["boost"] = 0
 
 recommendations = candidate_recommendations.sort_values(
 by=["boost", "attr_avg_rating", "attraction_popularity"],
