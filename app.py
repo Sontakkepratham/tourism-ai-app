@@ -38,6 +38,7 @@ user_id = st.sidebar.selectbox(
   "Select User ID",
   df["UserId"].unique()
 )
+st.write("Selected User:", user_id)
 
 st.subheader("Predicted Visit Mode")
 
