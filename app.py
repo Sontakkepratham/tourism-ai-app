@@ -2,7 +2,16 @@ import streamlit as st
 import pandas as pd
 import pickle
 
-st.set_page_config(page_title="AI Tourist App", layout="wide")
+# --------------------------------------------------
+# PAGE CONFIG
+# --------------------------------------------------
+
+st.set_page_config(page_title="AI Tourism Recommender", layout="wide")
+
+# --------------------------------------------------
+# PREMIUM DARK THEME STYLE
+# --------------------------------------------------
+
 st.markdown("""
 <style>
 
@@ -12,10 +21,6 @@ body {
 
 [data-testid="stAppViewContainer"] {
     background-color:#0e1117;
-}
-
-h1, h2, h3, h4 {
-    color:white;
 }
 
 .card {
@@ -34,173 +39,160 @@ h1, h2, h3, h4 {
 </style>
 """, unsafe_allow_html=True)
 
-
-st.title("AI Tourism Recommendation System")
+# --------------------------------------------------
+# HEADER
+# --------------------------------------------------
 
 st.markdown("""
 # 🎬 AI Tourism Recommender
 ##### Personalized AI travel discovery powered by hybrid intelligence
 """)
 
-def load_data():
-  df = pickle.load(open("data.pkl","rb"))
-  return df
+# --------------------------------------------------
+# LOAD DATA + MODEL
+# --------------------------------------------------
 
+@st.cache_data
+def load_data():
+    return pickle.load(open("data.pkl","rb"))
+
+@st.cache_resource
 def load_model():
-  clf = pickle.load(open("clf_model.pkl","rb"))
-  return clf
+    return pickle.load(open("clf_model.pkl","rb"))
 
 df = load_data()
 clf = load_model()
 
+# --------------------------------------------------
+# LABEL MAP
+# --------------------------------------------------
+
 visit_mode_map = {
-  0: "Business",
-  1: "Couples",
-  2: "Family",
-  3: "Friends",
-  4: "Solo"
+    0: "Business",
+    1: "Couples",
+    2: "Family",
+    3: "Friends",
+    4: "Solo"
 }
+
+# --------------------------------------------------
+# SIDEBAR USER INPUT
+# --------------------------------------------------
 
 st.sidebar.header("User Input")
 
 user_id = st.sidebar.selectbox(
-  "Select User ID",
-  df["UserId"].unique()
+    "Select User ID",
+    df["UserId"].unique()
 )
-st.write("Selected User:", user_id)
 
-st.subheader("Predicted Visit Mode")
+# --------------------------------------------------
+# PREDICTION
+# --------------------------------------------------
+
 features = [
-  "VisitYear",
-  "VisitMonth",
-  "attraction_popularity",
-  "attr_avg_rating",
-  "user_total_visits",
-  "user_avg_rating"
+    "VisitYear",
+    "VisitMonth",
+    "attraction_popularity",
+    "attr_avg_rating",
+    "user_total_visits",
+    "user_avg_rating"
 ]
+
 user_rows = df[df["UserId"] == user_id]
+
 if user_rows.empty:
-  st.warning("No data found for this user.") 
+    st.warning("No data available for this user.")
 else:
-  user_data = user_rows[features].mean()
 
-st.write("Features values:", user_data)
-prediction = clf.predict([user_data])[0]
-st.markdown(
-    f"""
-    <div class="card">
-        <h3>🧠 Predicted Travel Style</h3>
-        <h2 style="color:#FFD700;">{visit_mode_map.get(prediction, prediction)}</h2>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+    user_data = user_rows[features].mean()
 
-st.markdown("## ⭐ AI Picks For You")
+    prediction = clf.predict([user_data])[0]
+    predicted_label = visit_mode_map.get(prediction, prediction)
 
-cols = st.columns(3)
+    # Premium prediction badge
+    st.markdown(
+        f"""
+        <div class="card">
+            <h3>🧠 Predicted Travel Style</h3>
+            <h2 style="color:#FFD700;">{predicted_label}</h2>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-for i, (_, row) in enumerate(recommendations.iterrows()):
+    # --------------------------------------------------
+    # HYBRID RECOMMENDER
+    # --------------------------------------------------
 
-    with cols[i % 3]:
+    current_user_history = user_rows
 
-        st.markdown(
-            f"""
-            <div class="card">
-                <h4>🎯 Attraction {row['AttractionId']}</h4>
-                <p>Category: {row['AttractionType']}</p>
-                <p>⭐ Rating: {row['attr_avg_rating']}</p>
-                <small style="color:#58a6ff;">
-                Recommended because users with similar behaviour liked this.
-                </small>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+    liked_attractions = current_user_history[
+        current_user_history["Rating"] >= 4
+    ]["AttractionId"].unique()
 
+    similar_users = df[
+        df["AttractionId"].isin(liked_attractions)
+    ]["UserId"].unique()
 
-recommendations = candidate_recommendations.sort_values(
-by=["boost", "attr_avg_rating", "attraction_popularity"],
-    ascending=False
-)[
-    ["AttractionId", "AttractionType", "attr_avg_rating"]
-].drop_duplicates().head(5)
+    candidate_recommendations = df[
+        (df["UserId"].isin(similar_users)) &
+        (~df["AttractionId"].isin(current_user_history["AttractionId"]))
+    ].copy()
 
-st.markdown("###AI Picks For You")
+    mode_preferences = {
+        "Couples": ["Beaches", "Parks"],
+        "Family": ["Museums", "Theme Parks"],
+        "Friends": ["Adventure", "Nightlife"],
+        "Business": ["Museums"],
+        "Solo": ["Historic", "Nature"]
+    }
 
-cols = st.columns(3)
+    preferred_types = mode_preferences.get(predicted_label, [])
 
-for i, (_, row) in enumerate(recommendations.iterrows()):
-  with cols[i % 3]:
-     st.markdown(
-            f"""
-            <div style="
-                background-color:#111;
-                padding:15px;
-                border-radius:12px;
-                margin-bottom:10px;
-                box-shadow:0px 0px 10px rgba(0,0,0,0.3);
-            ">
-                <h4 style="color:white;">Attraction {row['AttractionId']}</h4>
-                <p style="color:#aaa;">Type: {row['AttractionType']}</p>
-                <p style="color:#FFD700;">⭐ Rating: {row['attr_avg_rating']}</p>
-                <p style="color:#0f9d58;">
-                    Recommended because users similar to you liked this.
-                </p>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-    
+    candidate_recommendations["boost"] = (
+        candidate_recommendations["AttractionType"]
+        .isin(preferred_types)
+        .astype(int)
+    )
 
-st.info(
-    f"Hybrid recommendations based on similar users + predicted travel style: **{predicted_label}**"
-)
+    recommendations = candidate_recommendations.sort_values(
+        by=["boost", "attr_avg_rating", "attraction_popularity"],
+        ascending=False
+    )[["AttractionId","AttractionType","attr_avg_rating"]].drop_duplicates().head(6)
 
-st.subheader("AI Recommend Attractions")
-predicted_label = visit_mode_map.get(prediction, prediction)
-mode_preferences = {
-  "Couples": ["Beaches", "Parks", "Romantic"],
-  "Family": ["Theme Parks", "Zoos", "Museums"],
-  "Friends": ["Nightlife", "Adventure", "Sports"],
-  "Busines": ["Museums", "City Tours"],
-  "Solo": ["Historic", "Nature", "Temples"]
-}
-preferred_types = mode_preferences.get(predicted_label, [])
+    # --------------------------------------------------
+    # NETFLIX STYLE UI
+    # --------------------------------------------------
 
-if preferred_types:
-  recommendations = df[
-  df["AttractionType"].isin(preferred_types)
-  ].sort_values(
-    by=["attr_avg_rating", "attraction_popularity"],
-    ascending=False
-  )
-else:
-  recommendations = df.sort_values(
-    by=["attr_avg_rating", "attraction_popularity"],
-    ascending=False
-  )
+    st.markdown("## ⭐ AI Picks For You")
 
-recommendations = recommendations[
-["AttractionId", "AttractionType", "attr_avg_rating"]
-].drop_duplicates().head(5)
+    cols = st.columns(3)
 
-st.dataframe(recommendations, use_container_width=True)
+    for i, (_, row) in enumerate(recommendations.iterrows()):
+        with cols[i % 3]:
+            st.markdown(
+                f"""
+                <div class="card">
+                    <h4>🎯 Attraction {row['AttractionId']}</h4>
+                    <p>Category: {row['AttractionType']}</p>
+                    <p>⭐ Rating: {row['attr_avg_rating']}</p>
+                    <small style="color:#58a6ff;">
+                    Recommended because users with similar behaviour liked this.
+                    </small>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-st.info(f"Recommendations generated based on predicted travel style: **{predicted_label}**")
+    # --------------------------------------------------
+    # USER HISTORY
+    # --------------------------------------------------
 
-st.subheader("User History")
+    st.markdown("## 📊 User History")
 
-user_history = df[df["UserId"] == user_id][
-["AttractionId", "Rating", "AttractionType"]
-]
+    history = current_user_history[
+        ["AttractionId","Rating","AttractionType"]
+    ].head(10)
 
-st.subheader("Recommended Attractions")
-recommendations = (
-  df.sort_values(by=["attr_avg_rating", "attraction_popularity"], ascending=False)
-  [["AttractionId", "AttractionType", "attr_avg_rating"]]
-  .drop_duplicates()
-  .head(5)
-)
-st.dataframe(recommendations, use_container_width=True)
-st.dataframe(user_history.head(10), use_container_width=True)
+    st.dataframe(history, use_container_width=True)
