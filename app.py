@@ -182,7 +182,8 @@ for _, row in recommendations.iterrows():
 
 carousel_html += "</div>"
 
-st.markdown(carousel_html, unsafe_allow_html=True)
+import streamlit.components.v1 as components
+components.html(carousel_html, height=300, scrolling=True)
 
 
     # --------------------------------------------------
