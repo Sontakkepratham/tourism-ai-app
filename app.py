@@ -42,6 +42,7 @@ st.write("Selected User:", user_id)
 
 st.subheader("Predicted Visit Mode")
 
+st.write("Features values:", user_data)
 features = [
   "VisitYear",
   "VisitMonth",
@@ -51,7 +52,7 @@ features = [
   "user_avg_rating"
 ]
 
-user_data = df[df["UserId"] == user_id][features].iloc[0]
+user_data = df[df["UserId"] == user_id][features].mean()
 prediction = clf.predict([user_data])[0]
 st.success(f"Predicted Visit Mode:{visit_mode_map.get(prediction, prediction)}")
 
