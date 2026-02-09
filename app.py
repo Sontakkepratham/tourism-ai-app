@@ -153,40 +153,85 @@ else:
 # NETFLIX CAROUSEL UI
 # --------------------------------------------------
 
+import streamlit.components.v1 as components
+
 st.markdown("## ⭐ AI Picks For You")
 
 carousel_html = """
-<div style="
-display:flex;
-overflow-x:auto;
-gap:20px;
-padding:10px;
-background-color:#0e1117;
-font-family:sans-serif;
-">
+<style>
+
+.carousel {
+    display:flex;
+    overflow-x:auto;
+    gap:20px;
+    padding:20px;
+    background:#0e1117;
+}
+
+.card {
+    position:relative;
+    min-width:280px;
+    height:380px;
+    border-radius:14px;
+    overflow:hidden;
+    cursor:pointer;
+    transition:transform 0.4s ease;
+}
+
+.card:hover {
+    transform:scale(1.08);
+}
+
+.card img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.overlay {
+    position:absolute;
+    bottom:0;
+    width:100%;
+    padding:15px;
+    background:linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    color:white;
+    font-family:sans-serif;
+}
+
+.badge {
+    background:#FFD700;
+    color:black;
+    padding:4px 8px;
+    border-radius:6px;
+    font-size:12px;
+    margin-top:5px;
+    display:inline-block;
+}
+
+</style>
+
+<div class="carousel">
 """
 
-for _, row in recommendations.iterrows():
+# placeholder netflix-style images
+image_url = "https://picsum.photos/400/600?random="
+
+for i, (_, row) in enumerate(recommendations.iterrows()):
 
     carousel_html += f"""
-    <div style="
-        min-width:260px;
-        background:#161b22;
-        border-radius:14px;
-        padding:20px;
-        flex-shrink:0;
-        color:white;
-    ">
-        <h4 style="color:white;">🎯 Attraction {row['AttractionId']}</h4>
-        <p style="color:#c9d1d9;">Category: {row['AttractionType']}</p>
-        <p style="color:#FFD700;">⭐ Rating: {row['attr_avg_rating']}</p>
+    <div class="card">
+        <img src="{image_url}{i}">
+        <div class="overlay">
+            <h4>🎯 Attraction {row['AttractionId']}</h4>
+            <p>{row['AttractionType']}</p>
+            <span class="badge">⭐ {row['attr_avg_rating']:.2f}</span>
+        </div>
     </div>
     """
 
 carousel_html += "</div>"
 
-import streamlit.components.v1 as components
-components.html(carousel_html, height=300, scrolling=True)
+components.html(carousel_html, height=450, scrolling=True)
 
 
     # --------------------------------------------------
