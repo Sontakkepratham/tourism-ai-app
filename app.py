@@ -208,27 +208,49 @@ else:
     # --------------------------------------------------
     # NETFLIX STYLE UI
     # --------------------------------------------------
+st.markdown("## ⭐ AI Picks For You")
 
-    st.markdown("## ⭐ AI Picks For You")
+carousel_html = """
+<div style="
+display:flex;
+overflow-x:auto;
+gap:20px;
+padding:10px;
+scroll-behavior:smooth;
+">
+"""
 
-    cols = st.columns(3)
+for _, row in recommendations.iterrows():
 
-    for i, (_, row) in enumerate(recommendations.iterrows()):
-        with cols[i % 3]:
-            st.markdown(
-                f"""
-                <div class="card">
-                    <h4>🎯 Attraction {row['AttractionId']}</h4>
-                    <p>Category: {row['AttractionType']}</p>
-                    <p>⭐ Rating: {row['attr_avg_rating']}</p>
-                    <small style="color:#58a6ff;">
-                    Recommended because users with similar behaviour liked this.
-                    </small>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+    card = f"""
+    <div style="
+        min-width:260px;
+        background:#161b22;
+        border-radius:14px;
+        padding:20px;
+        flex-shrink:0;
+        transition:0.3s;
+        box-shadow:0 0 10px rgba(0,0,0,0.4);
+    ">
 
+        <h4 style="color:white;">🎯 Attraction {row['AttractionId']}</h4>
+        <p style="color:#c9d1d9;">Category: {row['AttractionType']}</p>
+        <p style="color:#FFD700;">⭐ Rating: {row['attr_avg_rating']}</p>
+
+        <small style="color:#58a6ff;">
+        Recommended because similar users liked this
+        </small>
+
+    </div>
+    """
+
+    carousel_html += card
+
+carousel_html += "</div>"
+
+st.markdown(carousel_html, unsafe_allow_html=True)
+
+    
     # --------------------------------------------------
     # USER HISTORY
     # --------------------------------------------------
