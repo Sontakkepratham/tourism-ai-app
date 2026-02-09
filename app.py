@@ -149,39 +149,41 @@ else:
     # --------------------------------------------------
     # NETFLIX CAROUSEL UI
     # --------------------------------------------------
+# --------------------------------------------------
+# NETFLIX CAROUSEL UI
+# --------------------------------------------------
 
-    st.markdown("## ⭐ AI Picks For You")
+st.markdown("## ⭐ AI Picks For You")
 
-    carousel_html = """
+carousel_html = """
+<div style="
+display:flex;
+overflow-x:auto;
+gap:20px;
+padding:10px;
+">
+"""
+
+for _, row in recommendations.iterrows():
+
+    carousel_html += f"""
     <div style="
-    display:flex;
-    overflow-x:auto;
-    gap:20px;
-    padding:10px;
+        min-width:260px;
+        background:#161b22;
+        border-radius:14px;
+        padding:20px;
+        flex-shrink:0;
     ">
+        <h4>🎯 Attraction {row['AttractionId']}</h4>
+        <p>Category: {row['AttractionType']}</p>
+        <p style="color:#FFD700;">⭐ Rating: {row['attr_avg_rating']}</p>
+    </div>
     """
 
-    for _, row in recommendations.iterrows():
+carousel_html += "</div>"
 
-        card = f"""
-        <div style="
-            min-width:260px;
-            background:#161b22;
-            border-radius:14px;
-            padding:20px;
-            flex-shrink:0;
-        ">
-            <h4>🎯 Attraction {row['AttractionId']}</h4>
-            <p>Category: {row['AttractionType']}</p>
-            <p style="color:#FFD700;">⭐ Rating: {row['attr_avg_rating']}</p>
-        </div>
-        """
+st.markdown(carousel_html, unsafe_allow_html=True)
 
-        carousel_html += card
-
-    carousel_html += "</div>"
-
-    st.markdown(carousel_html, unsafe_allow_html=True)
 
     # --------------------------------------------------
     # USER HISTORY
