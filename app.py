@@ -8,76 +8,31 @@ import pickle
 
 st.set_page_config(page_title="AI Tourism Recommender", layout="wide")
 
+# --------------------------------------------------
+# PREMIUM DARK STYLE
+# --------------------------------------------------
+
 st.markdown("""
 <style>
 
-body {
-    background-color:#0e1117;
-}
-
-/* MAIN TEXT COLOR FIX */
 html, body, [class*="css"] {
+    background-color:#0e1117;
     color:#E6EDF3 !important;
 }
 
-/* HEADERS */
 h1, h2, h3, h4 {
-    color:#ffffff !important;
+    color:white !important;
 }
 
-/* SUBTEXT */
-p, span, label {
-    color:#c9d1d9 !important;
-}
-
-/* CARD STYLE */
 .card {
-    background-color:#161b22;
+    background:#161b22;
     padding:20px;
     border-radius:14px;
     margin-bottom:20px;
-    transition:0.3s;
 }
 
-.card:hover {
-    transform:scale(1.03);
-    box-shadow:0 0 15px rgba(255,255,255,0.1);
-}
-
-/* SIDEBAR */
 [data-testid="stSidebar"] {
-    background-color:#11161c;
-}
-
-</style>
-""", unsafe_allow_html=True)
-
-# --------------------------------------------------
-# PREMIUM DARK THEME STYLE
-# --------------------------------------------------
-
-st.markdown("""
-<style>
-
-body {
-    background-color:#0e1117;
-}
-
-[data-testid="stAppViewContainer"] {
-    background-color:#0e1117;
-}
-
-.card {
-    background-color:#161b22;
-    padding:20px;
-    border-radius:14px;
-    margin-bottom:20px;
-    transition:0.3s;
-}
-
-.card:hover {
-    transform:scale(1.03);
-    box-shadow:0 0 15px rgba(255,255,255,0.1);
+    background:#11161c;
 }
 
 </style>
@@ -120,7 +75,7 @@ visit_mode_map = {
 }
 
 # --------------------------------------------------
-# SIDEBAR USER INPUT
+# SIDEBAR INPUT
 # --------------------------------------------------
 
 st.sidebar.header("User Input")
@@ -131,7 +86,7 @@ user_id = st.sidebar.selectbox(
 )
 
 # --------------------------------------------------
-# PREDICTION
+# PREDICTION + RECOMMENDER
 # --------------------------------------------------
 
 features = [
@@ -146,7 +101,9 @@ features = [
 user_rows = df[df["UserId"] == user_id]
 
 if user_rows.empty:
+
     st.warning("No data available for this user.")
+
 else:
 
     user_data = user_rows[features].mean()
@@ -154,11 +111,11 @@ else:
     prediction = clf.predict([user_data])[0]
     predicted_label = visit_mode_map.get(prediction, prediction)
 
-    # Premium prediction badge
+    # Prediction card
     st.markdown(
         f"""
         <div class="card">
-            <h3>Predicted Travel Style</h3>
+            <h3>🧠 Predicted Travel Style</h3>
             <h2 style="color:#FFD700;">{predicted_label}</h2>
         </div>
         """,
@@ -184,78 +141,53 @@ else:
         (~df["AttractionId"].isin(current_user_history["AttractionId"]))
     ].copy()
 
-    mode_preferences = {
-        "Couples": ["Beaches", "Parks"],
-        "Family": ["Museums", "Theme Parks"],
-        "Friends": ["Adventure", "Nightlife"],
-        "Business": ["Museums"],
-        "Solo": ["Historic", "Nature"]
-    }
-
-    preferred_types = mode_preferences.get(predicted_label, [])
-
-    candidate_recommendations["boost"] = (
-        candidate_recommendations["AttractionType"]
-        .isin(preferred_types)
-        .astype(int)
-    )
-
     recommendations = candidate_recommendations.sort_values(
-        by=["boost", "attr_avg_rating", "attraction_popularity"],
+        by=["attr_avg_rating","attraction_popularity"],
         ascending=False
-    )[["AttractionId","AttractionType","attr_avg_rating"]].drop_duplicates().head(6)
+    )[["AttractionId","AttractionType","attr_avg_rating"]].drop_duplicates().head(10)
 
     # --------------------------------------------------
-    # NETFLIX STYLE UI
+    # NETFLIX CAROUSEL UI
     # --------------------------------------------------
-st.markdown("## AI Picks For You")
 
-carousel_html = """
-<div style="
-display:flex;
-overflow-x:auto;
-gap:20px;
-padding:10px;
-scroll-behavior:smooth;
-">
-"""
+    st.markdown("## ⭐ AI Picks For You")
 
-for _, row in recommendations.iterrows():
-
-    card = f"""
+    carousel_html = """
     <div style="
-        min-width:260px;
-        background:#161b22;
-        border-radius:14px;
-        padding:20px;
-        flex-shrink:0;
-        transition:0.3s;
-        box-shadow:0 0 10px rgba(0,0,0,0.4);
+    display:flex;
+    overflow-x:auto;
+    gap:20px;
+    padding:10px;
     ">
-
-        <h4 style="color:white;">Attraction {row['AttractionId']}</h4>
-        <p style="color:#c9d1d9;">Category: {row['AttractionType']}</p>
-        <p style="color:#FFD700;">Rating: {row['attr_avg_rating']}</p>
-
-        <small style="color:#58a6ff;">
-        Recommended because similar users liked this
-        </small>
-
-    </div>
     """
 
-    carousel_html += card
+    for _, row in recommendations.iterrows():
 
-carousel_html += "</div>"
+        card = f"""
+        <div style="
+            min-width:260px;
+            background:#161b22;
+            border-radius:14px;
+            padding:20px;
+            flex-shrink:0;
+        ">
+            <h4>🎯 Attraction {row['AttractionId']}</h4>
+            <p>Category: {row['AttractionType']}</p>
+            <p style="color:#FFD700;">⭐ Rating: {row['attr_avg_rating']}</p>
+        </div>
+        """
 
-st.markdown(carousel_html, unsafe_allow_html=True)
+        carousel_html += card
 
-    
+    carousel_html += "</div>"
+
+    st.markdown(carousel_html, unsafe_allow_html=True)
+
     # --------------------------------------------------
     # USER HISTORY
     # --------------------------------------------------
 
-    st.markdown("## User History")
+    st.markdown("## 📊 User History")
 
     history = current_user_history[
         ["AttractionId","Rating","AttractionType"]
