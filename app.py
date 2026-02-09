@@ -3,15 +3,44 @@ import pandas as pd
 import pickle
 
 st.set_page_config(page_title="AI Tourist App", layout="wide")
+st.markdown("""
+<style>
+
+body {
+    background-color:#0e1117;
+}
+
+[data-testid="stAppViewContainer"] {
+    background-color:#0e1117;
+}
+
+h1, h2, h3, h4 {
+    color:white;
+}
+
+.card {
+    background-color:#161b22;
+    padding:20px;
+    border-radius:14px;
+    margin-bottom:20px;
+    transition:0.3s;
+}
+
+.card:hover {
+    transform:scale(1.03);
+    box-shadow:0 0 15px rgba(255,255,255,0.1);
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 
 st.title("AI Tourism Recommendation System")
 
-st.markdown(
-  """
-  ### AI-powered travel behavior prediction and recommendation system 
-  Select a user to simulate personalized AI predictions.
-  """
-)
+st.markdown("""
+# 🎬 AI Tourism Recommender
+##### Personalized AI travel discovery powered by hybrid intelligence
+""")
 
 def load_data():
   df = pickle.load(open("data.pkl","rb"))
@@ -57,40 +86,38 @@ else:
 
 st.write("Features values:", user_data)
 prediction = clf.predict([user_data])[0]
-st.success(f"Predicted Visit Mode:{visit_mode_map.get(prediction, prediction)}")
+st.markdown(
+    f"""
+    <div class="card">
+        <h3>🧠 Predicted Travel Style</h3>
+        <h2 style="color:#FFD700;">{visit_mode_map.get(prediction, prediction)}</h2>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-st.subheader("AI Hybrid Recommendations")
-current_user_history = df[df["UserId"] == user_id]
-liked_attractions = current_user_history[
-current_user_history["Rating"] >=4
-]["AttractionId"].unique()
+st.markdown("## ⭐ AI Picks For You")
 
-similar_users = df[
-df["AttractionId"].isin(liked_attractions)
-]["UserId"].unique()
+cols = st.columns(3)
 
-candidate_recommendations = df[
-(df["UserId"].isin(similar_users)) & 
-(~df["AttractionId"].isin(current_user_history["AttractionId"]))
-]
-predicted_label = visit_mode_map.get(prediction, prediction)
+for i, (_, row) in enumerate(recommendations.iterrows()):
 
-mode_preferences = {
-"Couples": ["Beaches", "Parks"],
-"Family": ["Museums", "Theme Parks"],
-"Friends": ["Adventure", "Nightlife"],
-"Business": ["Museums"],
-"Solo": ["Historic", "Nature"]
-}
+    with cols[i % 3]:
 
-preferred_types = mode_preferences.get(predicted_label, [])
+        st.markdown(
+            f"""
+            <div class="card">
+                <h4>🎯 Attraction {row['AttractionId']}</h4>
+                <p>Category: {row['AttractionType']}</p>
+                <p>⭐ Rating: {row['attr_avg_rating']}</p>
+                <small style="color:#58a6ff;">
+                Recommended because users with similar behaviour liked this.
+                </small>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-if preferred_types:
-    candidate_recommendations["boost"] = candidate_recommendations[
-        "AttractionType"
-    ].isin(preferred_types).astype(int)
-else:
-    candidate_recommendations["boost"] = 0
 
 recommendations = candidate_recommendations.sort_values(
 by=["boost", "attr_avg_rating", "attraction_popularity"],
