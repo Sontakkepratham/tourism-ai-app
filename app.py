@@ -189,7 +189,7 @@ st.markdown(carousel_html, unsafe_allow_html=True)
     # USER HISTORY
     # --------------------------------------------------
 
-    st.markdown("## 📊 User History")
+    st.markdown("## 📊User History")
 
     history = current_user_history[
         ["AttractionId","Rating","AttractionType"]
