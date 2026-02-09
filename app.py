@@ -59,6 +59,51 @@ st.write("Features values:", user_data)
 prediction = clf.predict([user_data])[0]
 st.success(f"Predicted Visit Mode:{visit_mode_map.get(prediction, prediction)}")
 
+st.subheader("AI Hybrid Recommendations")
+current_user_history = df[df["UserId"] == user_id]
+liked_attractions = current_user_history[
+current_user_history["Rating"] >=4
+]["AttractionId].unique()
+
+similar_users = df[
+df["AttractionId].isin(liked_attractions)
+]["UserId"].unique()
+
+candidate_recommendations = df[
+(df["UserId"].isin(similar_users)) & 
+(~df["AttractionId"].isin(current_user_history["AttractionId"]))
+
+predicted_label = visit_mode_map.get(prediction, prediction)
+
+mode_preferences = {
+"Couples": ["Beaches", "Parks"],
+"Family": ["Museums", "Theme Parks"],
+"Friends": ["Adventure", "Nightlife"],
+"Business": ["Museums"],
+"Solo": ["Historic", "Nature"]
+}
+
+preferrred_types = mode_preferences.get(predicted_label, [])
+if preferred_types:
+candidate_recommendations["boost"] = candidate_recommendations[
+"AttractionType"
+].isin(preferred_types).astype(int)
+else:
+candidate_recommendations["boost"]=0
+
+recommendations = candidate_recommendations.sort_values(
+by=["boost", "attr_avg_rating", "attraction_popularity"],
+    ascending=False
+)[
+    ["AttractionId", "AttractionType", "attr_avg_rating"]
+].drop_duplicates().head(5)
+
+st.dataframe(recommendations, use_container_width=True)
+
+st.info(
+    f"Hybrid recommendations based on similar users + predicted travel style: **{predicted_label}**"
+)
+
 st.subheader("AI Recommend Attractions")
 predicted_label = visit_mode_map.get(prediction, prediction)
 mode_preferences = {
