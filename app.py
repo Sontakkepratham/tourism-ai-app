@@ -60,4 +60,12 @@ user_history = df[df["UserId"] == user_id][
 ["AttractionId", "Rating", "AttractionType"]
 ]
 
+st.subheader("Recommended Attractions")
+recommendations = (
+  df.sort_values(by=["attr_avg_rating", "attraction_popularity"], ascending=False)
+  [["AttractionId", "AttractionType", "attr_avg_rating"]]
+  .drop_duplicates()
+  .head(5)
+)
+st.dataframe(recommendations, use_container_width=True)
 st.dataframe(user_history.head(10), use_container_width=True)
