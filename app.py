@@ -8,6 +8,50 @@ import pickle
 
 st.set_page_config(page_title="AI Tourism Recommender", layout="wide")
 
+st.markdown("""
+<style>
+
+body {
+    background-color:#0e1117;
+}
+
+/* MAIN TEXT COLOR FIX */
+html, body, [class*="css"] {
+    color:#E6EDF3 !important;
+}
+
+/* HEADERS */
+h1, h2, h3, h4 {
+    color:#ffffff !important;
+}
+
+/* SUBTEXT */
+p, span, label {
+    color:#c9d1d9 !important;
+}
+
+/* CARD STYLE */
+.card {
+    background-color:#161b22;
+    padding:20px;
+    border-radius:14px;
+    margin-bottom:20px;
+    transition:0.3s;
+}
+
+.card:hover {
+    transform:scale(1.03);
+    box-shadow:0 0 15px rgba(255,255,255,0.1);
+}
+
+/* SIDEBAR */
+[data-testid="stSidebar"] {
+    background-color:#11161c;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
 # --------------------------------------------------
 # PREMIUM DARK THEME STYLE
 # --------------------------------------------------
