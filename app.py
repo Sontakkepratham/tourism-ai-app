@@ -63,10 +63,10 @@ st.subheader("AI Hybrid Recommendations")
 current_user_history = df[df["UserId"] == user_id]
 liked_attractions = current_user_history[
 current_user_history["Rating"] >=4
-]["AttractionId].unique()
+]["AttractionId"].unique()
 
 similar_users = df[
-df["AttractionId].isin(liked_attractions)
+df["AttractionId"].isin(liked_attractions)
 ]["UserId"].unique()
 
 candidate_recommendations = df[
