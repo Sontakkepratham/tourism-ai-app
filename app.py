@@ -99,7 +99,32 @@ by=["boost", "attr_avg_rating", "attraction_popularity"],
     ["AttractionId", "AttractionType", "attr_avg_rating"]
 ].drop_duplicates().head(5)
 
-st.dataframe(recommendations, use_container_width=True)
+st.markdown("###AI Picks For You")
+
+cols = st.columns(3)
+
+for i, (_, row) in enumerate(recommendations.iterrows()):
+  with cols[i % 3]:
+     st.markdown(
+            f"""
+            <div style="
+                background-color:#111;
+                padding:15px;
+                border-radius:12px;
+                margin-bottom:10px;
+                box-shadow:0px 0px 10px rgba(0,0,0,0.3);
+            ">
+                <h4 style="color:white;">Attraction {row['AttractionId']}</h4>
+                <p style="color:#aaa;">Type: {row['AttractionType']}</p>
+                <p style="color:#FFD700;">⭐ Rating: {row['attr_avg_rating']}</p>
+                <p style="color:#0f9d58;">
+                    Recommended because users similar to you liked this.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    
 
 st.info(
     f"Hybrid recommendations based on similar users + predicted travel style: **{predicted_label}**"
