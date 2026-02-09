@@ -161,6 +161,8 @@ display:flex;
 overflow-x:auto;
 gap:20px;
 padding:10px;
+background-color:#0e1117;
+font-family:sans-serif;
 ">
 """
 
@@ -173,9 +175,10 @@ for _, row in recommendations.iterrows():
         border-radius:14px;
         padding:20px;
         flex-shrink:0;
+        color:white;
     ">
-        <h4>🎯 Attraction {row['AttractionId']}</h4>
-        <p>Category: {row['AttractionType']}</p>
+        <h4 style="color:white;">🎯 Attraction {row['AttractionId']}</h4>
+        <p style="color:#c9d1d9;">Category: {row['AttractionType']}</p>
         <p style="color:#FFD700;">⭐ Rating: {row['attr_avg_rating']}</p>
     </div>
     """
