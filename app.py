@@ -158,7 +158,7 @@ else:
     st.markdown(
         f"""
         <div class="card">
-            <h3>🧠 Predicted Travel Style</h3>
+            <h3>Predicted Travel Style</h3>
             <h2 style="color:#FFD700;">{predicted_label}</h2>
         </div>
         """,
@@ -208,7 +208,7 @@ else:
     # --------------------------------------------------
     # NETFLIX STYLE UI
     # --------------------------------------------------
-st.markdown("## ⭐ AI Picks For You")
+st.markdown("##AI Picks For You")
 
 carousel_html = """
 <div style="
@@ -233,9 +233,9 @@ for _, row in recommendations.iterrows():
         box-shadow:0 0 10px rgba(0,0,0,0.4);
     ">
 
-        <h4 style="color:white;">🎯 Attraction {row['AttractionId']}</h4>
+        <h4 style="color:white;">Attraction {row['AttractionId']}</h4>
         <p style="color:#c9d1d9;">Category: {row['AttractionType']}</p>
-        <p style="color:#FFD700;">⭐ Rating: {row['attr_avg_rating']}</p>
+        <p style="color:#FFD700;">Rating: {row['attr_avg_rating']}</p>
 
         <small style="color:#58a6ff;">
         Recommended because similar users liked this
@@ -255,7 +255,7 @@ st.markdown(carousel_html, unsafe_allow_html=True)
     # USER HISTORY
     # --------------------------------------------------
 
-    st.markdown("## 📊 User History")
+    st.markdown("##User History")
 
     history = current_user_history[
         ["AttractionId","Rating","AttractionType"]
