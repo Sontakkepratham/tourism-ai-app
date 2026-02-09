@@ -72,7 +72,7 @@ df["AttractionId"].isin(liked_attractions)
 candidate_recommendations = df[
 (df["UserId"].isin(similar_users)) & 
 (~df["AttractionId"].isin(current_user_history["AttractionId"]))
-
+]
 predicted_label = visit_mode_map.get(prediction, prediction)
 
 mode_preferences = {
