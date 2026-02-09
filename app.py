@@ -208,7 +208,7 @@ else:
     # --------------------------------------------------
     # NETFLIX STYLE UI
     # --------------------------------------------------
- st.markdown("##AI Picks For You")
+st.markdown("##AI Picks For You")
 
 carousel_html = """
 <div style="
