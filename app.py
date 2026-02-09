@@ -41,8 +41,6 @@ user_id = st.sidebar.selectbox(
 st.write("Selected User:", user_id)
 
 st.subheader("Predicted Visit Mode")
-
-st.write("Feature values:", user_data)
 features = [
   "VisitYear",
   "VisitMonth",
@@ -51,8 +49,13 @@ features = [
   "user_total_visits",
   "user_avg_rating"
 ]
+user_rows = df[df["UserId"] == user_id]
+if user_rows.empty:
+  st.warning("No data found for this user.") 
+else:
+  user_data = user_rows[features].mean()
 
-user_data = df[df["UserId"] == user_id][features].mean()
+st.write("Features values:", user_data)
 prediction = clf.predict([user_data])[0]
 st.success(f"Predicted Visit Mode:{visit_mode_map.get(prediction, prediction)}")
 
