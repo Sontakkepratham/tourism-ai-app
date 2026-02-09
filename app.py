@@ -59,6 +59,38 @@ st.write("Features values:", user_data)
 prediction = clf.predict([user_data])[0]
 st.success(f"Predicted Visit Mode:{visit_mode_map.get(prediction, prediction)}")
 
+st.subheader("AI Recommend Attractions")
+predicted_label = visit_mode_map.get(prediction, prediction)
+mode_preferences = {
+  "Couples": ["Beaches", "Parks", "Romantic"],
+  "Family": ["Theme Parks", "Zoos", "Museums"],
+  "Friends": ["Nightlife", "Adventure", "Sports"],
+  "Busines": ["Museums", "City Tours"],
+  "Solo": ["Historic", "Nature", "Temples"]
+}
+preferred_types = mode_preferences.get(predicted_label, [])
+
+if preferred_types:
+  recommendations = df[
+  df["AttractionType"].isin(preferred_types)
+  ].sort_values(
+    by=["attr_avg_rating", "attraction_popularity"],
+    ascending=False
+  )
+else:
+  recommendations = df.sort_values(
+    by=["attr_avg_rating", "attraction_popularity"],
+    ascending=False
+  )
+
+recommendations = recommendations[
+["AttractionId", "AttractionType", "attr_avg_rating"]
+].drop_duplicates().head(5)
+
+st.dataframe(recommendations, use_container_width=True)
+
+st.info(f"Recommendations generated based on predicted travel style: **{predicted_label}**")
+
 st.subheader("User History")
 
 user_history = df[df["UserId"] == user_id][
