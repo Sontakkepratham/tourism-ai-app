@@ -42,7 +42,7 @@ st.write("Selected User:", user_id)
 
 st.subheader("Predicted Visit Mode")
 
-st.write("Features values:", user_data)
+st.write("Feature values:", user_data)
 features = [
   "VisitYear",
   "VisitMonth",
