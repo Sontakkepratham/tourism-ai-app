@@ -149,6 +149,118 @@ else:
     # --------------------------------------------------
     # NETFLIX CAROUSEL UI
     # --------------------------------------------------
+import streamlit.components.v1 as components
+
+# --------------------------------------------------
+# HERO SECTION (BIG AI PREDICTION BANNER)
+# --------------------------------------------------
+
+st.markdown(f"""
+<div style="
+background:linear-gradient(90deg,#161b22,#0e1117);
+padding:30px;
+border-radius:14px;
+margin-bottom:25px;
+">
+
+<h1 style="color:white;">🧠 Your AI Travel Style: {predicted_label}</h1>
+<p style="color:#c9d1d9;">
+Our AI analyzed your behavior and predicts your ideal travel experience.
+Explore recommendations curated just for you.
+</p>
+
+</div>
+""", unsafe_allow_html=True)
+
+# --------------------------------------------------
+# NETFLIX CARD STYLE FUNCTION
+# --------------------------------------------------
+
+def build_carousel(title, dataframe):
+
+    html = """
+    <style>
+    .carousel {display:flex;overflow-x:auto;gap:20px;padding:15px;}
+    .card {
+        position:relative;
+        min-width:260px;
+        height:360px;
+        border-radius:14px;
+        overflow:hidden;
+        transition:0.4s;
+    }
+    .card:hover {transform:scale(1.08);}
+    .card img {width:100%;height:100%;object-fit:cover;}
+    .overlay {
+        position:absolute;
+        bottom:0;
+        width:100%;
+        padding:15px;
+        background:linear-gradient(to top,rgba(0,0,0,0.9),transparent);
+        color:white;
+        font-family:sans-serif;
+    }
+    </style>
+    """
+
+    html += f"<h2 style='color:white'>{title}</h2>"
+    html += "<div class='carousel'>"
+
+    image_url = "https://picsum.photos/400/600?random="
+
+    for i, (_, row) in enumerate(dataframe.iterrows()):
+        html += f"""
+        <div class="card">
+            <img src="{image_url}{i}">
+            <div class="overlay">
+                <h4>Attraction {row['AttractionId']}</h4>
+                <p>{row['AttractionType']}</p>
+                ⭐ {row['attr_avg_rating']:.2f}
+            </div>
+        </div>
+        """
+
+    html += "</div>"
+
+    components.html(html, height=450, scrolling=True)
+
+# --------------------------------------------------
+# ROW 1 — AI PICKS
+# --------------------------------------------------
+
+build_carousel("⭐ Because You Might Love These", recommendations)
+
+# --------------------------------------------------
+# ROW 2 — TRENDING
+# --------------------------------------------------
+
+trending = df.sort_values("attraction_popularity", ascending=False)[
+    ["AttractionId","AttractionType","attr_avg_rating"]
+].drop_duplicates().head(10)
+
+build_carousel("🔥 Trending Now", trending)
+
+# --------------------------------------------------
+# ROW 3 — CATEGORY BASED
+# --------------------------------------------------
+
+nature = df[df["AttractionType"].str.contains("Park|Nature", na=False)].head(10)
+
+build_carousel("🌍 Explore Nature & Adventure", nature)
+
+# --------------------------------------------------
+# USER HISTORY
+# --------------------------------------------------
+
+st.markdown("## 📊 Your Recent Activity")
+
+history = current_user_history[
+    ["AttractionId","Rating","AttractionType"]
+].head(10)
+
+st.dataframe(history, use_container_width=True)
+
+
 # --------------------------------------------------
 # NETFLIX CAROUSEL UI
 # --------------------------------------------------
